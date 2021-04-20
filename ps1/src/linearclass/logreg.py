@@ -1,6 +1,6 @@
 import numpy as np
+import math
 import util
-
 
 def main(train_path, valid_path, save_path):
     """Problem: Logistic regression with Newton's Method.
@@ -16,6 +16,12 @@ def main(train_path, valid_path, save_path):
     # Train a logistic regression classifier
     # Plot decision boundary on top of validation set set
     # Use np.savetxt to save predictions on eval set to save_path
+    clf = LogisticRegression()
+    clf.fit(x_train, y_train)
+    
+    x_val, y_val = util.load_dataset(valid_path, add_intercept=True)
+    np.savetxt(save_path, clf.predict(x_val))
+    util.plot(x_val, y_val, clf.theta, "./logreg_plot.png")
     # *** END CODE HERE ***
 
 
@@ -43,14 +49,31 @@ class LogisticRegression:
         self.eps = eps
         self.verbose = verbose
 
+    def h(self, x):
+        z = np.dot(x, self.theta)
+        return 1 / (1 + np.exp(-z))
+
     def fit(self, x, y):
         """Run Newton's Method to minimize J(theta) for logistic regression.
 
         Args:
-            x: Training example inputs. Shape (n_examples, dim).
-            y: Training example labels. Shape (n_examples,).
+            x: Training example inputs. Shape (N, D).
+            y: Training example labels. Shape (N,).
         """
         # *** START CODE HERE ***
+        N, D = x.shape
+        self.theta = np.zeros(D)
+        epoch = 0
+
+        while epoch < self.max_iter:
+            grad_j = (-1/N) * np.dot(x.T, y - self.h(x))
+            hessian = (1/N) * np.dot(x.T, x) * np.dot((1 - self.h(x)).T, self.h(x))
+            next_theta = self.theta - self.step_size * np.dot(np.linalg.inv(hessian), grad_j)
+            if np.linalg.norm(self.theta - next_theta, ord=1) < self.eps:
+                break
+            self.theta = next_theta
+            epoch += 1
+
         # *** END CODE HERE ***
 
     def predict(self, x):
@@ -63,6 +86,7 @@ class LogisticRegression:
             Outputs of shape (n_examples,).
         """
         # *** START CODE HERE ***
+        return 1 / (1 + np.exp(-np.dot(x, self.theta)))
         # *** END CODE HERE ***
 
 if __name__ == '__main__':
