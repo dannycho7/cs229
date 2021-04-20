@@ -17,6 +17,11 @@ def main(train_path, valid_path, save_path):
     # Train a GDA classifier
     # Plot decision boundary on validation set
     # Use np.savetxt to save outputs from validation set to save_path
+    clf = GDA()
+    clf.fit(x_train, y_train)
+    x_val, y_val = util.load_dataset(valid_path, add_intercept=True)
+    np.savetxt(save_path, clf.predict(x_val))
+    util.plot(x_val, y_val, clf.theta, "./gda_plot.png")
     # *** END CODE HERE ***
 
 
@@ -49,24 +54,36 @@ class GDA:
         self.theta.
 
         Args:
-            x: Training example inputs. Shape (n_examples, dim).
-            y: Training example labels. Shape (n_examples,).
+            x: Training example inputs. Shape (N, D).
+            y: Training example labels. Shape (N,).
         """
         # *** START CODE HERE ***
         # Find phi, mu_0, mu_1, and sigma
         # Write theta in terms of the parameters
+        N, D = x.shape
+        self.theta = np.zeros(D + 1)
+
+        phi = (1/N) * np.sum(y == 1)
+        mu_0 = (y == 0).dot(x) / (np.sum(y == 0))
+        mu_1 = (y == 1).dot(x) / (np.sum(y == 1))
+        mu_x = np.array([mu_0, mu_1])[y.astype(int)]
+        sigma = (1/N) * np.sum((x - mu_x).dot((x - mu_x).T))
+
+        self.theta[0] = -np.log((1 - phi)/phi) + (1/2) * (mu_0.dot(mu_0.T) - mu_1.dot(mu_1.T)) / sigma
+        self.theta[1:] = (mu_1 - mu_0) / sigma
         # *** END CODE HERE ***
 
     def predict(self, x):
         """Make a prediction given new inputs x.
 
         Args:
-            x: Inputs of shape (n_examples, dim).
+            x: Inputs of shape (N, D).
 
         Returns:
-            Outputs of shape (n_examples,).
+            Outputs of shape (N,).
         """
         # *** START CODE HERE ***
+        return 1 / (1 + np.exp(-np.dot(x, self.theta)))
         # *** END CODE HERE
 
 if __name__ == '__main__':
