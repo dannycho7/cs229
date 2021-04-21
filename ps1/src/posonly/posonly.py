@@ -32,11 +32,31 @@ def main(train_path, valid_path, test_path, save_path):
 
     # *** START CODE HERE ***
     # Part (a): Train and test on true labels
+    x_train_t, y_train_t = util.load_dataset(train_path, label_col='t', add_intercept=True)
+    clf = LogisticRegression()
+    clf.fit(x_train_t, y_train_t)
+    
+    x_test_t, y_test_t = util.load_dataset(test_path, label_col='t', add_intercept=True)
+    util.plot(x_test_t, y_test_t, clf.theta, "./plot_a.png")
+    np.savetxt(output_path_true, clf.predict(x_test_t))
     # Make sure to save predicted probabilities to output_path_true using np.savetxt()
     # Part (b): Train on y-labels and test on true labels
+    x_train_y, y_train_y = util.load_dataset(train_path, label_col='y', add_intercept=True)
+    clf = LogisticRegression()
+    clf.fit(x_train_y, y_train_y)
+    
+    util.plot(x_test_t, y_test_t, clf.theta, "./plot_b.png")
+    np.savetxt(output_path_naive, clf.predict(x_test_t))
     # Make sure to save predicted probabilities to output_path_naive using np.savetxt()
     # Part (f): Apply correction factor using validation set and test on true labels
     # Plot and use np.savetxt to save outputs to output_path_adjusted
+    x_val_y, y_val_y = util.load_dataset(train_path, label_col='y', add_intercept=True)
+    clf = LogisticRegression()
+    clf.fit(x_val_y, y_val_y)
+    alpha = np.sum(clf.predict(x_val_y) * y_val_y) / np.sum(y_val_y)
+
+    util.plot(x_test_t, y_test_t, clf.theta, "./plot_f.png", correction=alpha)
+    np.savetxt(output_path_adjusted, clf.predict(x_test_t))
     # *** END CODER HERE
 
 if __name__ == '__main__':
