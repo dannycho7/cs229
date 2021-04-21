@@ -1,3 +1,4 @@
+from functools import partial
 import util
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26,6 +27,7 @@ class LinearModel(object):
             y: Training example labels. Shape (n_examples,).
         """
         # *** START CODE HERE ***
+        self.theta = np.linalg.solve(X.T.dot(X), X.T.dot(y))
         # *** END CODE HERE ***
 
     def create_poly(self, k, X):
@@ -38,6 +40,7 @@ class LinearModel(object):
             X: Training example inputs. Shape (n_examples, 2).
         """
         # *** START CODE HERE ***
+        return np.power(X[:, 1:], np.arange(k+1))
         # *** END CODE HERE ***
 
     def create_sin(self, k, X):
@@ -49,6 +52,9 @@ class LinearModel(object):
             X: Training example inputs. Shape (n_examples, 2).
         """
         # *** START CODE HERE ***
+        poly = np.power(X[:, 1:], np.arange(k+1))
+        sin = np.sin(X[:, 1:])
+        return np.concatenate((poly, sin), axis=1)
         # *** END CODE HERE ***
 
     def predict(self, X):
@@ -63,6 +69,7 @@ class LinearModel(object):
             Outputs of shape (n_examples,).
         """
         # *** START CODE HERE ***
+        return X.dot(self.theta)
         # *** END CODE HERE ***
 
 
@@ -78,6 +85,13 @@ def run_exp(train_path, sine=False, ks=[1, 2, 3, 5, 10, 20], filename='plot.png'
         Our objective is to train models and perform predictions on plot_x data
         '''
         # *** START CODE HERE ***
+        clf = LinearModel()
+        if sine:
+            phi = partial(clf.create_sin, k)
+        else:
+            phi = partial(clf.create_poly, k)
+        clf.fit(phi(train_x), train_y)
+        plot_y = clf.predict(phi(plot_x))
         # *** END CODE HERE ***
         '''
         Here plot_y are the predictions of the linear model on the plot_x data
@@ -94,8 +108,10 @@ def main(train_path, small_path, eval_path):
     '''
     Run all expetriments
     '''
-    # *** START CODE HERE ***
-    # *** END CODE HERE ***
+    run_exp(train_path, ks=[3], filename='plot_k.png')
+    run_exp(train_path, ks=[3, 5, 10, 20], filename='plot_k.png')
+    run_exp(train_path, sine=True, ks=[0, 1, 2, 3, 5, 10, 20], filename='plot_sine.png')
+    run_exp(small_path, sine=True, ks=[1, 2, 5, 10, 20], filename='plot_small.png')
 
 if __name__ == '__main__':
     main(train_path='train.csv',
