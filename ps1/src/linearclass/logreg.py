@@ -98,4 +98,4 @@ if __name__ == '__main__':
     main(train_path='ds2_train.csv',
          valid_path='ds2_valid.csv',
          save_path='logreg_pred_2.txt',
-         plot_path="./logreg_plot.png")
+         plot_path="./logreg_plot_2.png")
