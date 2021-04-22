@@ -56,7 +56,7 @@ def main(train_path, valid_path, test_path, save_path):
     alpha = np.sum(clf.predict(x_val_y) * y_val_y) / np.sum(y_val_y)
 
     util.plot(x_test_t, y_test_t, clf.theta, "./plot_f.png", correction=alpha)
-    np.savetxt(output_path_adjusted, clf.predict(x_test_t))
+    np.savetxt(output_path_adjusted, clf.predict(x_test_t) / alpha)
     # *** END CODER HERE
 
 if __name__ == '__main__':
