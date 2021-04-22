@@ -60,7 +60,7 @@ def load_dataset(csv_path, label_col='y', add_intercept=False):
     return inputs, labels
 
 
-def plot(x, y, theta, save_path, correction=1.0):
+def plot(pred, y, theta, save_path, correction=1.0):
     """Plot dataset and fitted logistic regression parameters.
 
     Args:
@@ -72,8 +72,7 @@ def plot(x, y, theta, save_path, correction=1.0):
     """
     # Plot dataset
     plt.figure()
-    plt.plot(x, 'bx', linewidth=2)
-    plt.plot(y, 'go', linewidth=2)
+    plt.plot(y, pred, 'bx', linewidth=2)
 
     # Add labels and save to disk
     plt.xlabel('true count')

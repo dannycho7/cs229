@@ -17,7 +17,7 @@ def main(lr, train_path, eval_path, save_path):
     # *** START CODE HERE ***
     # Fit a Poisson Regression model
     # Run on the validation set, and use np.savetxt to save outputs to save_path
-    clf = PoissonRegression()
+    clf = PoissonRegression(step_size=lr)
     clf.fit(x_train, y_train)
     x_val, y_val = util.load_dataset(eval_path, add_intercept=True)
     predictions = clf.predict(x_val)
