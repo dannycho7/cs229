@@ -67,10 +67,11 @@ class GDA:
         mu_0 = (y == 0).dot(x) / (np.sum(y == 0))
         mu_1 = (y == 1).dot(x) / (np.sum(y == 1))
         mu_x = np.array([mu_0, mu_1])[y.astype(int)]
-        sigma = (1/N) * np.sum((x - mu_x).dot((x - mu_x).T))
+        sigma = (1/N) * (x - mu_x).T.dot((x - mu_x))
+        sigma_inv = np.linalg.inv(sigma)
 
-        self.theta[0] = -np.log((1 - phi)/phi) + (1/2) * (mu_0.dot(mu_0.T) - mu_1.dot(mu_1.T)) / sigma
-        self.theta[1:] = (mu_1 - mu_0) / sigma
+        self.theta[0] = -np.log((1 - phi)/phi) + (1/2) * (mu_0.dot(sigma_inv).dot(mu_0.T) - mu_1.dot(sigma_inv).dot(mu_1.T))
+        self.theta[1:] = sigma_inv.dot(mu_1 - mu_0)
         # *** END CODE HERE ***
 
     def predict(self, x):
@@ -83,7 +84,6 @@ class GDA:
             Outputs of shape (N,).
         """
         # *** START CODE HERE ***
-        print(np.dot(x, self.theta))
         return 1 / (1 + np.exp(-np.dot(x, self.theta)))
         # *** END CODE HERE
 
