@@ -2,7 +2,7 @@ import numpy as np
 import math
 import util
 
-def main(train_path, valid_path, save_path):
+def main(train_path, valid_path, save_path, plot_path):
     """Problem: Logistic regression with Newton's Method.
 
     Args:
@@ -21,7 +21,7 @@ def main(train_path, valid_path, save_path):
     
     x_val, y_val = util.load_dataset(valid_path, add_intercept=True)
     np.savetxt(save_path, clf.predict(x_val))
-    util.plot(x_val, y_val, clf.theta, "./logreg_plot.png")
+    util.plot(x_val, y_val, clf.theta, plot_path)
     # *** END CODE HERE ***
 
 
@@ -92,8 +92,10 @@ class LogisticRegression:
 if __name__ == '__main__':
     main(train_path='ds1_train.csv',
          valid_path='ds1_valid.csv',
-         save_path='logreg_pred_1.txt')
+         save_path='logreg_pred_1.txt',
+         plot_path="./logreg_plot_1.png")
 
     main(train_path='ds2_train.csv',
          valid_path='ds2_valid.csv',
-         save_path='logreg_pred_2.txt')
+         save_path='logreg_pred_2.txt',
+         plot_path="./logreg_plot.png")

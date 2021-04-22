@@ -2,7 +2,7 @@ import numpy as np
 import util
 
 
-def main(train_path, valid_path, save_path):
+def main(train_path, valid_path, save_path, plot_path):
     """Problem: Gaussian discriminant analysis (GDA)
 
     Args:
@@ -21,7 +21,7 @@ def main(train_path, valid_path, save_path):
     clf.fit(x_train, y_train)
     x_val, y_val = util.load_dataset(valid_path, add_intercept=True)
     np.savetxt(save_path, clf.predict(x_val))
-    util.plot(x_val, y_val, clf.theta, "./gda_plot.png")
+    util.plot(x_val, y_val, clf.theta, plot_path)
     # *** END CODE HERE ***
 
 
@@ -83,14 +83,17 @@ class GDA:
             Outputs of shape (N,).
         """
         # *** START CODE HERE ***
+        print(np.dot(x, self.theta))
         return 1 / (1 + np.exp(-np.dot(x, self.theta)))
         # *** END CODE HERE
 
 if __name__ == '__main__':
     main(train_path='ds1_train.csv',
          valid_path='ds1_valid.csv',
-         save_path='gda_pred_1.txt')
+         save_path='gda_pred_1.txt',
+         plot_path="./gda_plot_1.png")
 
     main(train_path='ds2_train.csv',
          valid_path='ds2_valid.csv',
-         save_path='gda_pred_2.txt')
+         save_path='gda_pred_2.txt',
+         plot_path="./gda_plot_2.png")
