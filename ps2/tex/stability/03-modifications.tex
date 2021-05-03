@@ -1,0 +1,13 @@
+\item \subquestionpoints{5}
+For each of these possible modifications, state whether or not it would lead to
+the provided training algorithm converging
+on datasets such as $B$. Briefly explain your answers. (You are not expected to prove or provide a formal justification for your answers.)
+\textbf{Note:} By ``converging'', we mean the convergence in the mathematical sense (i.e., that the algorithm has found a value of theta that is close to the global optimum of the loss function), not just terminating the algorithm (e.g. by making the learning rate very small).
+\begin{enumerate}
+  \item Using a different constant learning rate.
+  \item Decreasing the learning rate over time by using the learning rate $\alpha_{t}=c/t^{3}$ at iteration $t$, where $c>0$ is a constant representing the initial learning rate and $t$ is the number of gradient descent iterations thus far.
+  \item Linear scaling of the input features.
+  \item Adding a regularization term $\|\theta\|_2^2$ to the loss function.
+  \item Adding zero-mean Gaussian noise to the training data or labels.
+\end{enumerate}
+ 
