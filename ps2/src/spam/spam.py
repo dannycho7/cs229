@@ -20,6 +20,7 @@ def get_words(message):
        The list of normalized words from the message.
     """
     # *** START CODE HERE ***
+    return list(map(str.lower, message.split(' ')))
     # *** END CODE HERE ***
 
 
@@ -39,6 +40,17 @@ def create_dictionary(messages):
         A python dict mapping words to integers.
     """
     # *** START CODE HERE ***
+    wordToCount = {}
+    for message in messages:
+        words = get_words(message)
+        for word in words:
+            wordToCount[word] = wordToCount.get(word, 0) + 1
+    word_dictionary = {}
+    for word, count in wordToCount.items():
+        if count < 5:
+            continue
+        word_dictionary[word] = len(word_dictionary)
+    return word_dictionary
     # *** END CODE HERE ***
 
 
@@ -63,6 +75,13 @@ def transform_text(messages, word_dictionary):
         j-th vocabulary word in the i-th message.
     """    
     # *** START CODE HERE ***
+    I, J = len(messages), len(word_dictionary)
+    transformed = np.zeros((I, J))
+    for i, message in enumerate(messages):
+        for word in get_words(message):
+            if word in word_dictionary:
+                transformed[i, word_dictionary[word]] += 1
+    return transformed
     # *** END CODE HERE ***
 
 
@@ -83,6 +102,12 @@ def fit_naive_bayes_model(matrix, labels):
     Returns: The trained model
     """
     # *** START CODE HERE ***
+    N, D = matrix.shape
+    num_words = matrix.sum(axis=1)
+    phi_y0 = (1 + np.sum(matrix * (labels == 0)[:, np.newaxis], axis=0)) / (D + (labels == 0).dot(num_words))
+    phi_y1 = (1 + np.sum(matrix * (labels == 1)[:, np.newaxis], axis=0)) / (D + (labels == 1).dot(num_words))
+    phi_y = (labels == 1).mean()
+    return (phi_y0, phi_y1, phi_y)
     # *** END CODE HERE ***
 
 
@@ -99,6 +124,17 @@ def predict_from_naive_bayes_model(model, matrix):
     Returns: A numpy array containg the predictions from the model (int array of 0 or 1 values)
     """
     # *** START CODE HERE ***
+    phi_y0, phi_y1, phi_y = model
+    # Note: these are log probabilites. we don't need to compute p(y|x) as p(x|y=i) works for relative comparison.
+    p_xj_y0 = (matrix * phi_y0)
+    p_xj_y0[p_xj_y0 == 0] = 1
+    p_y0_x = np.log(p_xj_y0).sum(axis=1) + np.log(1 - phi_y)
+    p_xj_y1 = (matrix * phi_y1)
+    p_xj_y1[p_xj_y1 == 0] = 1
+    p_y1_x = np.log(p_xj_y1).sum(axis=1) + np.log(phi_y)
+
+    prediction = (p_y1_x > p_y0_x).astype(int)
+    return prediction
     # *** END CODE HERE ***
 
 
