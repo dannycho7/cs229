@@ -151,6 +151,17 @@ def get_top_five_naive_bayes_words(model, dictionary):
     Returns: A list of the top five most indicative words in sorted order with the most indicative first
     """
     # *** START CODE HERE ***
+    phi_y0, phi_y1, phi_y = model
+    # Note: these are log probabilites.
+    indicativeness = np.log(phi_y1) - np.log(phi_y0)
+    word_idxs = indicativeness.argsort()[:5]
+    words = []
+    for word_idx in word_idxs:
+        for k, v in dictionary.items():
+            if v == word_idx:
+                words.append(k)
+                continue
+    return words
     # *** END CODE HERE ***
 
 
@@ -171,6 +182,14 @@ def compute_best_svm_radius(train_matrix, train_labels, val_matrix, val_labels, 
         The best radius which maximizes SVM accuracy.
     """
     # *** START CODE HERE ***
+    best_acc = None
+    best_radius = None
+    for radius in radius_to_consider:
+        prediction = svm.train_and_predict_svm(train_matrix, train_labels, val_matrix, radius)
+        accuracy = (val_labels == prediction).mean()
+        if best_acc is None or best_acc < accuracy:
+            best_radius = radius
+    return best_radius
     # *** END CODE HERE ***
 
     
@@ -191,6 +210,14 @@ def compute_best_logreg_learning_rate(train_matrix, train_labels, val_matrix, va
         The best logistic regression learning rate which maximizes validation set accuracy.
     """
     # *** START CODE HERE ***
+    best_acc = None
+    best_lr = None
+    for lr in learning_rates_to_consider:
+        prediction = logreg.train_and_predict_logreg(train_matrix, train_labels, val_matrix, lr)
+        accuracy = (val_labels == prediction).mean()
+        if best_acc is None or best_acc < accuracy:
+            best_lr = lr
+    return best_lr
     # *** END CODE HERE ***
 
 
