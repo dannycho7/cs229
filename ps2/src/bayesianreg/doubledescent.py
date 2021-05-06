@@ -26,6 +26,17 @@ def ridge_regression(train_path, validation_path):
         val_err: List of validation errors for different scaling factors of lambda in scale_list.
     """
     # *** START CODE HERE ***
+    train_xs, train_ys = util.load_dataset(train_path)
+    val_xs, val_ys = util.load_dataset(validation_path)
+    val_errs = []
+    Nv, = val_ys.shape
+    l_opt = np.identity(d) / (2 * eta**2)
+    for scale in scale_list:
+        reg = scale * l_opt
+        theta = np.linalg.pinv(2 * reg * sigma ** 2 + train_xs.T.dot(train_xs)).dot(train_xs.T.dot(train_ys))
+        mse_theta = (np.linalg.norm(val_xs.dot(theta) - val_ys)**2) / Nv
+        val_errs.append(mse_theta)
+    return val_errs
     # *** END CODE HERE
 
 
