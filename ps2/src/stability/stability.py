@@ -25,8 +25,13 @@ def logistic_regression(X, Y):
         prev_theta = theta
         grad = calc_grad(X, Y, theta)
         theta = theta + learning_rate * grad
+        """
         if i % 10000 == 0:
             print('Finished %d iterations' % i)
+            print(np.linalg.norm(grad))
+            # util.plot(X[:, 1:], Y, theta, f'plots/ds2_a_logreg{i}.png')
+        # print(np.linalg.norm(prev_theta - theta))
+        """
         if np.linalg.norm(prev_theta - theta) < 1e-15:
             print('norm(prev_theta - theta) < 1e-15 in %d iterations' % i)
             break
