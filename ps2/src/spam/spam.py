@@ -5,7 +5,6 @@ import logreg
 import collections
 import numpy as np
 
-
 def get_words(message):
     """Get the normalized list of words from a message string.
 
@@ -42,14 +41,13 @@ def create_dictionary(messages):
     # *** START CODE HERE ***
     wordToCount = {}
     for message in messages:
-        words = get_words(message)
+        words = list(dict.fromkeys(get_words(message)))
         for word in words:
             wordToCount[word] = wordToCount.get(word, 0) + 1
     word_dictionary = {}
     for word, count in wordToCount.items():
-        if count < 5:
-            continue
-        word_dictionary[word] = len(word_dictionary)
+        if count >= 5:
+            word_dictionary[word] = len(word_dictionary)
     return word_dictionary
     # *** END CODE HERE ***
 
@@ -154,7 +152,7 @@ def get_top_five_naive_bayes_words(model, dictionary):
     phi_y0, phi_y1, phi_y = model
     # Note: these are log probabilites.
     indicativeness = np.log(phi_y1) - np.log(phi_y0)
-    word_idxs = indicativeness.argsort()[:5]
+    word_idxs = indicativeness.argsort()[::-1][:5]
     words = []
     for word_idx in word_idxs:
         for k, v in dictionary.items():
@@ -189,6 +187,7 @@ def compute_best_svm_radius(train_matrix, train_labels, val_matrix, val_labels, 
         accuracy = (val_labels == prediction).mean()
         if best_acc is None or best_acc < accuracy:
             best_radius = radius
+            best_acc = accuracy
     return best_radius
     # *** END CODE HERE ***
 
@@ -217,6 +216,7 @@ def compute_best_logreg_learning_rate(train_matrix, train_labels, val_matrix, va
         accuracy = (val_labels == prediction).mean()
         if best_acc is None or best_acc < accuracy:
             best_lr = lr
+            best_acc = accuracy
     return best_lr
     # *** END CODE HERE ***
 
