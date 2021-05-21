@@ -147,14 +147,38 @@ def run_semi_supervised_em(x, x_tilde, z_tilde, w, phi, mu, sigma):
         # Hint: Make sure to include alpha in your calculation of ll.
         # Hint: For debugging, recall part (a). We showed that ll should be monotonically increasing.
         # *** END CODE HERE ***
-
+        N, D = x.shape
+        N_tilde, _ = x_tilde.shape
+        x_norms = np.array([x - mu[k] for k in range(K)]) # (K, N, D)
+        x_tilde_norms = np.array([x_tilde - mu[k] for k in range(K)]) # (K, N_tilde, D)
+        sig_inv = [np.linalg.pinv(sig) for sig in sigma]
+        sig_det_2pid_sq = [(((2 * np.pi) ** D) * np.linalg.det(sig)) ** (-1/2) for sig in sigma]
+        def get_p_x_bar_z(x_norms):
+            K, N, _ = x_norms.shape
+            p_x_bar_z = np.zeros((N, K))
+            for i in range(N):
+                for k in range(K):
+                    p_x_bar_z[i,k] = sig_det_2pid_sq[k] * np.exp((-1/2)*(x_norms[k][i]).dot(sig_inv[k]).dot(x_norms[k][i]))
+            return p_x_bar_z
+        p_x_bar_z = get_p_x_bar_z(x_norms)
+        p_x_and_z = p_x_bar_z * phi
+        w = p_x_and_z / p_x_and_z.sum(axis=1, keepdims=True)
+        
+        z_tilde_sel = np.array([(z_tilde == k).squeeze() for k in range(K)])
+        
+        sigma = np.array([(sum(w[i][k] * np.outer(x_norms[k][i], x_norms[k][i]) for i in range(N)) + sum(alpha * z_tilde_sel[k][i] * np.outer(x_tilde_norms[k][i], x_tilde_norms[k][i]) for i in range(N_tilde))) / (w[:,k].sum() + alpha * z_tilde_sel[k].sum()) for k in range(K)])
+        phi = (w.sum(axis=0) + alpha * z_tilde_sel.sum(axis=1)) / (N + alpha * N_tilde)
+        mu = [(w[:, k].dot(x) + alpha * z_tilde_sel[k].dot(x_tilde)) / (w[:, k].sum() + alpha * z_tilde_sel[k].sum()) for k in range(K)]
+        prev_ll = ll
+        ll = np.log(get_p_x_bar_z(x_norms).dot(phi)).sum()
+        p_x_tilde_bar_z = get_p_x_bar_z(x_tilde_norms)
+        for i in range(N_tilde):
+            z = int(z_tilde.squeeze()[i])
+            ll += alpha * np.log(p_x_tilde_bar_z[i,z] * phi[z])
+        if prev_ll is not None and prev_ll > ll:
+            print("wtf")
+        it += 1
     return w
-
-
-# *** START CODE HERE ***
-# Helper functions
-# *** END CODE HERE ***
-
 
 def plot_gmm_preds(x, z, with_supervision, plot_id):
     """Plot GMM predictions on a 2D dataset `x` with labels `z`.
@@ -220,5 +244,5 @@ if __name__ == '__main__':
         # Once you've implemented the semi-supervised version,
         # uncomment the following line.
         # You do not need to add any other lines in this code block.
-        # main(is_semi_supervised=True, trial_num=t)
+        main(is_semi_supervised=True, trial_num=t)
         # *** END CODE HERE ***
