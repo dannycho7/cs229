@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import argparse
+from PIL.Image import new
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,7 +31,10 @@ def init_centroids(num_clusters, image):
     # *** START YOUR CODE ***
     # raise NotImplementedError('init_centroids function not implemented')
     # *** END YOUR CODE ***
-
+    H,W,C = image.shape
+    centroids_init = np.zeros((num_clusters, C))
+    for k in range(num_clusters):
+        centroids_init[k] = image[np.random.randint(0, H), np.random.randint(0, W)]
     return centroids_init
 
 
@@ -62,6 +66,26 @@ def update_centroids(centroids, image, max_iter=30, print_every=10):
                 # Loop over all centroids and store distances in `dist`
                 # Find closest centroid and update `new_centroids`
         # Update `new_centroids`
+    iter = 0
+    eps = 1e-3  # Convergence threshold
+    H,W,_ = image.shape
+    K,_ = centroids.shape
+    prev_centroids = None
+    new_centroids = centroids
+    while iter < max_iter and (prev_centroids is None or np.linalg.norm(new_centroids - prev_centroids) > eps):
+        prev_centroids = new_centroids.copy()
+        dist = [[np.linalg.norm(prev_centroids - image[h,w], axis=1) for w in range(W)] for h in range(H)]
+        centroid_els = [[] for k in range(K)]
+        for h in range(H):
+            for w in range(W):
+                closest = dist[h][w].argmin()
+                centroid_els[closest].append(image[h,w])
+        for k in range(K):
+            new_centroids[k] = np.array(centroid_els[k]).mean(axis=0)
+        iter += 1
+        if iter % print_every == 0:
+            print(np.linalg.norm(new_centroids - prev_centroids))
+            print("iter {0} with centroids: {1}".format(iter, new_centroids))
     # *** END YOUR CODE ***
 
     return new_centroids
@@ -91,7 +115,13 @@ def update_image(image, centroids):
             # Loop over all centroids and store distances in `dist`
             # Find closest centroid and update pixel value in `image`
     # *** END YOUR CODE ***
-
+    H,W,_ = image.shape
+    dist = [[np.linalg.norm(centroids - image[h,w], axis=1) for w in range(W)] for h in range(H)]
+    centroid_count = [0 for k in range(centroids.shape[0])]
+    for h in range(H):
+        for w in range(W):
+            centroid_count[dist[h][w].argmin()] += 1
+            image[h,w] = centroids[dist[h][w].argmin()]
     return image
 
 
