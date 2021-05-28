@@ -129,6 +129,11 @@ def choose_action(state, mdp_data):
     """
 
     # *** START CODE HERE ***
+    transitions, value = mdp_data['transition_probs'][state], mdp_data['value']
+    actions_expected_v = (transitions * value[:, np.newaxis]).sum(axis=0)
+    winners = np.argwhere(actions_expected_v == np.amax(actions_expected_v)).flatten()
+    winner = np.random.choice(winners)
+    return winner
     # *** END CODE HERE ***
 
 def update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_state, reward):
@@ -153,6 +158,10 @@ def update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_stat
     """
 
     # *** START CODE HERE ***
+    transition_counts, reward_counts = mdp_data['transition_counts'], mdp_data['reward_counts']
+    transition_counts[state, new_state, action] += 1
+    reward_counts[new_state, 0] += reward
+    reward_counts[new_state, 1] += 1
     # *** END CODE HERE ***
 
     # This function does not return anything
@@ -176,6 +185,15 @@ def update_mdp_transition_probs_reward(mdp_data):
     """
 
     # *** START CODE HERE ***
+    transition_counts, reward_counts = mdp_data['transition_counts'], mdp_data['reward_counts']
+    mdp_data['reward'] = reward_counts[:, 0] / (reward_counts[:, 1] + (reward_counts[:, 1] == 0)) # a bit of a hack to prevent div by 0    
+    for state, new_tc in enumerate(transition_counts):
+        totals = new_tc.sum(axis=0)
+        for new_state, ac in enumerate(new_tc):
+            for action, count in enumerate(ac):
+                if totals[action] == 0:
+                    continue
+                mdp_data['transition_probs'][state, new_state, action] =  count / totals[action]
     # *** END CODE HERE ***
 
     # This function does not return anything
@@ -203,6 +221,17 @@ def update_mdp_value(mdp_data, tolerance, gamma):
     """
 
     # *** START CODE HERE ***
+    transitions, rewards = mdp_data['transition_probs'], mdp_data['reward']
+    iter = 0
+    while True:
+        iter += 1
+        old_value = mdp_data['value'].copy()
+        actions_expected_v = (transitions * mdp_data['value'][:, np.newaxis]).sum(axis=1)
+        new_value = rewards + gamma * np.max(actions_expected_v, axis=1)
+        mdp_data['value'] = new_value
+        if np.abs(old_value - new_value).max() < tolerance:
+            break
+    return iter == 1
     # *** END CODE HERE ***
 
 def main(plot=True):
