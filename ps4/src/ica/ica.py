@@ -19,6 +19,10 @@ def update_W(W, x, learning_rate):
     """
 
     # *** START CODE HERE ***
+
+    grad_l = np.linalg.pinv(W).T - np.outer(np.sign(W @ x), x.reshape(1, -1))
+    updated_W = W + learning_rate * (grad_l)
+
     # *** END CODE HERE ***
 
     return updated_W
@@ -39,6 +43,7 @@ def unmix(X, W):
     S = np.zeros(X.shape)
 
     # *** START CODE HERE ***
+    S = X @ W.T
     # *** END CODE HERE ***
 
     return S
